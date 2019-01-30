@@ -58,6 +58,10 @@ function zan(player::Player)::Player
     Player(player.qi + UInt8(1), player.agentType)
 end # function
 
+function bor(player::Player)::Player
+    Player(UInt8(0), player.agentType)
+end # function
+
 function step(state::LiveState)::State
     write(stdout, "\n******* \n")
     playerActions = Dict{Symbol, Acts}()
@@ -98,13 +102,15 @@ function step(state::LiveState)::State
         if state.P2.qi > 0x01
             EndState(:P2)
         else
-            state
+            LiveState(state.P1,
+                      bor(state.P2))
         end # if
     elseif playerActions[:P1] == Bor && playerActions[:P2] == Def
         if state.P1.qi > 0x01
             EndState(:P1)
         else
-            state
+            LiveState(bor(state.P1),
+                      state.P2)
         end # if
     elseif playerActions[:P1] == Bor && playerActions[:P2] == Bor
         if state.P1.qi > state.P2.qi
@@ -112,7 +118,8 @@ function step(state::LiveState)::State
         elseif state.P1.qi < state.P2.qi
             EndState(:P2)
         else
-            state
+            LiveState(bor(state.P1),
+                      bor(state.P2))
         end # if
     elseif playerActions[:P1] == Def && playerActions[:P2] == Def
         state
